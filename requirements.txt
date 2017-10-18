@@ -1,4 +1,4 @@
 Django
 celery
 requests
-py-zipkin==0.9.0
+py-zipkin==0.8.3
