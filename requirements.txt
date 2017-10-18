@@ -1,4 +1,4 @@
 Django==1.11.6
 celery==4.1.0
 requests==2.18.4
-py-zipkin==0.8.3
+py-zipkin==0.9.0
