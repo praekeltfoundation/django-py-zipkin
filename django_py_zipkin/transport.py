@@ -34,7 +34,11 @@ def trace(span_name, tracer, span_id=None, service_name=None):
         tracer.get('span_id') or generate_random_64bit_string())
     flags = tracer.get('flags') or ''
     is_sampled = (True if tracer.get('is_tracing') else False)
-    transport_handler = import_string(settings.ZIPKIN_TRANSPORT_HANDLER)
+    transport_handler = import_string(
+        getattr(
+            settings,
+            'ZIPKIN_TRANSPORT_HANDLER',
+            'django_py_zipkin.transport.zipkin_transport'))
 
     span = zipkin_span(
         service_name=service_name,
