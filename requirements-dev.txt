@@ -1,0 +1,6 @@
+pytest
+pytest-xdist
+pytest-django
+mock
+responses
+flake8
