@@ -9,13 +9,12 @@ from django.utils.module_loading import import_string
 from py_zipkin.util import generate_random_64bit_string
 from py_zipkin.zipkin import ZipkinAttrs, zipkin_span
 
-from django_py_zipkin.tasks import submit_to_zipkin
-
 
 logger = logging.getLogger(__name__)
 
 
 def zipkin_transport(encoded_span, endpoint=None):
+    from django_py_zipkin.tasks import submit_to_zipkin
     submit_to_zipkin.delay(
         b64encode(encoded_span).decode('utf-8'),
         endpoint=endpoint)
