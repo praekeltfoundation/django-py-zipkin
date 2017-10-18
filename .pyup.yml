@@ -1,7 +1,7 @@
 requirements:
   - requirements.txt:
     update: all
-    pin: True
+    pin: False
   - requirements-dev.txt:
     update: False
 
