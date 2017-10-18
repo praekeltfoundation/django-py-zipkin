@@ -1,5 +1,5 @@
 pytest==3.2.3
-pytest-xdist
+pytest-xdist==1.20.1
 pytest-django
 mock
 responses
