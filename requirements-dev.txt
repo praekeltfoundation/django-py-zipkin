@@ -1,6 +1,6 @@
 pytest==3.2.3
 pytest-xdist==1.20.1
 pytest-django==3.1.2
-mock
+mock==2.0.0
 responses
 flake8
