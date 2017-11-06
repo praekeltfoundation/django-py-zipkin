@@ -3,7 +3,11 @@ python:
 - '2.7'
 - '3.6'
 - pypy
+env:
+  - DJANGO_VERSION=""
+  - DJANGO_VERSION="<1.10"
 install:
+- if [ ! -z "$DJANGO_VERSION" ]; then pip install "Django$DJANGO_VERSION"; fi;
 - pip install -e '.[dev]'
 script:
 - flake8
