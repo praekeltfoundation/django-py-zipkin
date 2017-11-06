@@ -51,6 +51,8 @@ MIDDLEWARE = [
     'django_py_zipkin.middleware.ZipkinMiddleware',
 ]
 
+MIDDLEWARE_CLASSES = MIDDLEWARE
+
 ROOT_URLCONF = 'exampleapp.urls'
 
 TEMPLATES = [
