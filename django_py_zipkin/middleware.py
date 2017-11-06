@@ -161,7 +161,6 @@ class ZipkinMiddleware(object):
             zipkin_context.update_binary_annotations(
                 get_binary_annotations(request, response),
             )
-            print('hello')
             return response
 
     def process_request(self, request):
