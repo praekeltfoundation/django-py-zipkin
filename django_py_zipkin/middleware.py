@@ -132,8 +132,6 @@ class ZipkinMiddleware(object):
             'flags': request.zipkin_flags
         })
 
-        print('tx handler', self.transport_handler)
-
         span_name = '{0} {1}'.format(request.method, request.path)
 
         # If the incoming request doesn't have Zipkin headers, this request is
@@ -160,5 +158,4 @@ class ZipkinMiddleware(object):
             zipkin_context.update_binary_annotations(
                 get_binary_annotations(request, response),
             )
-            print('hello')
             return response
