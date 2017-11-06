@@ -96,6 +96,12 @@ class ZipkinMiddleware(object):
         else:
             return random.random() < self.sampling_treshold
 
+    def process_request(self, request):
+        """
+        Compatibility for older versions of Django.
+        """
+        return self(request)
+
     def __call__(self, request):
         if not (self.enable_tracing and self.is_tracing(request)):
             setattr(request, 'zipkin_is_tracing', False)
