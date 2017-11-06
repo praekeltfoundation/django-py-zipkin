@@ -7,8 +7,8 @@ env:
   - DJANGO_VERSION=""
   - DJANGO_VERSION="1.9"
 install:
-- pip install -e '.[dev]'
 - if [ ! -z "$DJANGO_VERSION" ]; then pip install "Django==$DJANGO_VERSION"; fi;
+- pip install -e '.[dev]'
 script:
 - flake8
 - py.test
