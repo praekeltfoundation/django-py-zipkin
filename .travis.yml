@@ -4,8 +4,8 @@ python:
 - '3.6'
 - pypy
 env:
+  - DJANGO_VERSION=""
   - DJANGO_VERSION="1.9"
-  - DJANGO_VERSION="2.0"
 install:
 - pip install -e '.[dev]'
 - if [ -z $DJANGO_VERSION ] then; pip install Django==$DJANGO_VERSION; fi;
