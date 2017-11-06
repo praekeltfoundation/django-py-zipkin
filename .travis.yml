@@ -5,9 +5,9 @@ python:
 - pypy
 env:
   - DJANGO_VERSION=""
-  - DJANGO_VERSION="1.9"
+  - DJANGO_VERSION="<1.10"
 install:
-- if [ ! -z "$DJANGO_VERSION" ]; then pip install "Django==$DJANGO_VERSION"; fi;
+- if [ ! -z "$DJANGO_VERSION" ]; then pip install "Django$DJANGO_VERSION"; fi;
 - pip install -e '.[dev]'
 script:
 - flake8

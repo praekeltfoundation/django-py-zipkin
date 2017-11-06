@@ -1,5 +1,11 @@
-from django.test import TestCase, RequestFactory, override_settings
 from django.http import HttpResponse
+
+try:
+    from django.shortcuts import reverse
+except ImportError:
+    from django.core.urlresolvers import reverse
+
+from django.test import TestCase, RequestFactory, override_settings
 from django_py_zipkin.middleware import ZipkinMiddleware
 from django_py_zipkin.tasks import submit_to_zipkin
 from base64 import b64encode
@@ -80,3 +86,24 @@ class ZipkinMiddlewareTest(TestCase):
 
         submit_to_zipkin(b64encode(six.b('foo')))
         self.assertEqual(len(responses.calls), 1)
+
+    @override_settings(
+        ZIPKIN_TRACING_ENABLED=True,
+        ZIPKIN_HTTP_ENDPOINT='http://127.0.0.1:9411/api/v1/spans',
+        ZIPKIN_SERVICE_NAME='zipkin-test',
+        ZIPKIN_BLACKLISTED_PATHS=['^/$', '^/login/$'],
+        ZIPKIN_TRACING_SAMPLING=1.00)
+    @responses.activate
+    def test_integration(self):
+        def cb(request):
+            # This test could be better but I'm not sure I want to
+            # invest the time to decode the encoded span any better
+            self.assertTrue(six.b('foo') in request.body.read())
+            return (200, {}, '')
+
+        responses.add_callback(
+            responses.POST, 'http://127.0.0.1:9411/api/v1/spans', cb,
+            'application/x-thrift')
+
+        response = self.client.get(reverse('testing-view'))
+        self.assertTrue(response.has_header('X-Cloud-Trace-Context'))
