@@ -96,13 +96,7 @@ class ZipkinMiddleware(object):
         else:
             return random.random() < self.sampling_treshold
 
-    def process_request(self, request):
-        """
-        Compatibility for older versions of Django.
-        """
-        return self(request)
-
-    def __call__(self, request):
+    def add_zipkin_to_request(self, request):
         if not (self.enable_tracing and self.is_tracing(request)):
             setattr(request, 'zipkin_is_tracing', False)
             setattr(request, 'zipkin_trace_id', None)
@@ -112,7 +106,7 @@ class ZipkinMiddleware(object):
             setattr(request, 'zipkin_tracer', {
                 'is_tracing': request.zipkin_is_tracing,
             })
-            return self.get_response(request)
+            return
 
         span_id = request.META.get(
             'HTTP_X_B3_SPANID', generate_random_64bit_string())
@@ -132,33 +126,68 @@ class ZipkinMiddleware(object):
             'flags': request.zipkin_flags
         })
 
-        print('tx handler', self.transport_handler)
-
+    def get_zipkin_context(self, request):
         span_name = '{0} {1}'.format(request.method, request.path)
 
         # If the incoming request doesn't have Zipkin headers, this request is
         # assumed to be the root span of a trace.
         report_root_timestamp = 'HTTP_X_B3_TRACEID' not in request.META
 
-        with zipkin_span(
+        return zipkin_span(
             service_name=self.service_name,
             span_name=span_name,
             zipkin_attrs=ZipkinAttrs(
                 trace_id=request.zipkin_trace_id,
-                span_id=span_id,
-                parent_span_id=parent_span_id,
-                flags=flags,
+                span_id=request.zipkin_span_id,
+                parent_span_id=request.zipkin_parent_span_id,
+                flags=request.zipkin_flags,
                 is_sampled=True,
             ),
             transport_handler=self.transport_handler,
             add_logging_annotation=self.add_logging_annotation,
             report_root_timestamp=report_root_timestamp,
-        ) as zipkin_context:
+        )
+
+    def __call__(self, request):
+        self.add_zipkin_to_request(request)
+
+        if not (self.enable_tracing and self.is_tracing(request)):
+            return self.get_response(request)
+
+        with self.get_zipkin_context(request) as zipkin_context:
             response = self.get_response(request)
             response["X-Cloud-Trace-Context"] = "%s/%s;o=1" % (
-                request.zipkin_trace_id, parent_span_id or 0)
+                request.zipkin_trace_id, request.zipkin_parent_span_id or 0)
             zipkin_context.update_binary_annotations(
                 get_binary_annotations(request, response),
             )
             print('hello')
             return response
+
+    def process_request(self, request):
+        """
+        Compatibility for older versions of Django.
+        """
+        if not (self.enable_tracing and self.is_tracing(request)):
+            return
+
+        self.add_zipkin_to_request(request)
+        zipkin_context = self.get_zipkin_context(request)
+        setattr(request, 'zipkin_context', zipkin_context)
+        zipkin_context.start()
+
+    def process_response(self, request, response):
+        """
+        Compatibility for older versions of Django.
+        """
+        zipkin_context = getattr(request, 'zipkin_context', None)
+        if zipkin_context is None:
+            return response
+
+        response["X-Cloud-Trace-Context"] = "%s/%s;o=1" % (
+            request.zipkin_trace_id, request.zipkin_parent_span_id or 0)
+        zipkin_context.update_binary_annotations(
+            get_binary_annotations(request, response),
+        )
+        zipkin_context.stop()
+        return response
