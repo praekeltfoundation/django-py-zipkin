@@ -94,7 +94,8 @@ class ZipkinMiddlewareTest(TestCase):
         ZIPKIN_BLACKLISTED_PATHS=['^/$', '^/login/$'],
         ZIPKIN_TRACING_SAMPLING=1.00)
     @responses.activate
-    def test_integration(self):
+    @patch('django_py_zipkin.tasks.submit_to_zipkin')
+    def test_integration(self, patched_transport):
         def cb(request):
             # This test could be better but I'm not sure I want to
             # invest the time to decode the encoded span any better
@@ -106,4 +107,5 @@ class ZipkinMiddlewareTest(TestCase):
             'application/x-thrift')
 
         response = self.client.get(reverse('testing-view'))
+        patched_transport.delay.assert_called()
         self.assertTrue(response.has_header('X-Cloud-Trace-Context'))
