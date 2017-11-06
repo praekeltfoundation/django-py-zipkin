@@ -8,7 +8,7 @@ env:
   - DJANGO_VERSION="1.9"
 install:
 - pip install -e '.[dev]'
-- if [ -z $DJANGO_VERSION ] then; pip install Django==$DJANGO_VERSION; fi;
+- [[ ! -z $DJANGO_VERSION ]] && pip install Django==$DJANGO_VERSION
 script:
 - flake8
 - py.test
