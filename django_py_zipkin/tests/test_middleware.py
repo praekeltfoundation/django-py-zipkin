@@ -87,7 +87,6 @@ class ZipkinMiddlewareTest(TestCase):
         self.assertEqual(response.zipkin_is_tracing, True)
         patched_random.assert_called_once()
 
-
     @override_settings(
         ZIPKIN_TRACING_ENABLED=True,
         ZIPKIN_HTTP_ENDPOINT='http://127.0.0.1:9411/api/v1/spans',
