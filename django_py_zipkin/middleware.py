@@ -89,12 +89,16 @@ class ZipkinMiddleware(object):
             r.match(request.path) for r in self.blacklisted_paths])
 
     def is_tracing(self, request):
+        if getattr(request, 'zipkin_is_tracing', None) is not None:
+            return request.zipkin_is_tracing
         if self.should_not_sample_path(request):
             return False
         elif 'HTTP_X_B3_SAMPLED' in request.META:
             return request.META.get('HTTP_X_B3_SAMPLED') == '1'
         else:
-            return random.random() < self.sampling_treshold
+            zipkin_is_tracing = random.random() < self.sampling_treshold
+            setattr(request, 'zipkin_is_tracing', zipkin_is_tracing)
+            return zipkin_is_tracing
 
     def add_zipkin_to_request(self, request):
         if not (self.enable_tracing and self.is_tracing(request)):
