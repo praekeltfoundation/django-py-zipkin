@@ -69,6 +69,29 @@ class ZipkinMiddlewareTest(TestCase):
         ZIPKIN_TRACING_ENABLED=True,
         ZIPKIN_HTTP_ENDPOINT='http://127.0.0.1:9411/api/v1/spans',
         ZIPKIN_SERVICE_NAME='zipkin-test',
+        ZIPKIN_TRACING_SAMPLE=0.5)
+    @patch('django_py_zipkin.tasks.submit_to_zipkin')
+    @patch('random.random')
+    def test_sample_rate(self, patched_random, patched_transport):
+        response = HttpResponse()
+        mock_callback = Mock()
+        mock_callback.return_value = response
+
+        middleware = ZipkinMiddleware(mock_callback)
+
+        patched_random.side_effect = [0, 1]
+
+        response = self.factory.get('/', SERVER_NAME='127.0.0.1')
+        middleware(response)
+
+        self.assertEqual(response.zipkin_is_tracing, True)
+        patched_random.assert_called_once()
+
+
+    @override_settings(
+        ZIPKIN_TRACING_ENABLED=True,
+        ZIPKIN_HTTP_ENDPOINT='http://127.0.0.1:9411/api/v1/spans',
+        ZIPKIN_SERVICE_NAME='zipkin-test',
         ZIPKIN_BLACKLISTED_PATHS=['^/$', '^/login/$'],
         ZIPKIN_TRACING_SAMPLING=1.00)
     @responses.activate
