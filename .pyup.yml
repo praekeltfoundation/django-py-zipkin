@@ -1,0 +1,10 @@
+requirements:
+  - requirements.txt:
+    update: all
+    pin: False
+  - requirements-dev.txt:
+    update: False
+
+branch_prefix: pyup/
+close_prs: True
+

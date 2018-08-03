@@ -1,0 +1,22 @@
+language: python
+python:
+- '2.7'
+- '3.6'
+- pypy
+env:
+  - DJANGO_VERSION=""
+  - DJANGO_VERSION="<1.10"
+install:
+- if [ ! -z "$DJANGO_VERSION" ]; then pip install "Django$DJANGO_VERSION"; fi;
+- pip install -e '.[dev]'
+script:
+- flake8
+- py.test
+deploy:
+  provider: pypi
+  user: praekelt.org
+  distributions: "sdist bdist_wheel"
+  password:
+    secure: yllvSCVaFBp8bS/XL2pSvdreAm6A1knZvH9PvFky925w8tSqTV1fzlr9NIS2dpQo1QbGtdrLYv1g37GCSL1mgwvf0VYPuqdxEyfIfiRsFbfst2UWkXk7EHbDFow+6ynTZFXpowYzIdpJ+QfIp6lDh7RXxy/p8+NLQZCKk4q9sh+QtOQndzIfRkRPaKOEIykOT2L58dT++NeEeKNF94R9XNsDkrL0t6aX9FglrJPZFTX6wkzNTeu6tk2xXGUl3n481+OaXW548dYpXDYhteHg1Q+JVdMPrh5QU4/I69HbhjLPwiKQ+VNWt1TPx1Ov+V0zcutc76HQRc7KsJvs/w7Yg1FUT/8HgvBJCm0loL0smNntlOPju94Zs6vzskB+9d4Olh1fbxF1hsm/f5LWYBYjTxbl8NtZIRZgMCgnhmvHIyU4cH3sS6DgX1JDJOLOMF/9faYfGJyy9mxuOmIhebau8y0gGOTLxX/xT3xeRz9rvEQuxFQSQL3VETmiYhvYWZcbke2vReqDJvFmJTDb5iVp6Chux4e6OxWlPkZ/RQrvcXjx6FRh9GI0/peXWT1+NjYsLTTSlLTfmHJK1AyMV/CsZRhzLIdhjNdBZoA7hDNuwzZnY6/TPnRXWowzyZ+94D8zoG3nfzY0x/63ubQnPxopiBdrWEHJbgdxkQsNoh1eBh8=
+  on:
+    tags: true

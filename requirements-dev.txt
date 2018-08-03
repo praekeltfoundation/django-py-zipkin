@@ -1,0 +1,6 @@
+pytest>=3.6,<4.0
+pytest-xdist
+pytest-django>=3.3.3,<4.0
+mock
+responses
+flake8
