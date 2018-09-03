@@ -39,6 +39,10 @@ def trace(span_name, tracer, span_id=None, service_name=None):
             'ZIPKIN_TRANSPORT_HANDLER',
             'django_py_zipkin.transport.zipkin_transport'))
 
+    zipkin_enabled = getattr(settings, 'ZIPKIN_TRACING_ENABLED', False)
+    if not zipkin_enabled:
+        yield {}
+
     span = zipkin_span(
         service_name=service_name,
         span_name=span_name,
