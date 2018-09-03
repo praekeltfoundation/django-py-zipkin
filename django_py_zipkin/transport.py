@@ -1,6 +1,6 @@
 import logging
 
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from base64 import b64encode
 
 from django.conf import settings
@@ -40,8 +40,6 @@ def trace(span_name, tracer, span_id=None, service_name=None):
             'django_py_zipkin.transport.zipkin_transport'))
 
     zipkin_enabled = getattr(settings, 'ZIPKIN_TRACING_ENABLED', False)
-    if not zipkin_enabled:
-        yield {}
 
     span = zipkin_span(
         service_name=service_name,
@@ -53,7 +51,11 @@ def trace(span_name, tracer, span_id=None, service_name=None):
             parent_span_id=parent_span_id,
             flags=flags,
             is_sampled=is_sampled))
-    with span as zipkin_context:
+
+    ctx_mgr = span if zipkin_enabled else suppress()
+
+    with ctx_mgr as zipkin_context:
         dict_context = {}
         yield dict_context
-        zipkin_context.update_binary_annotations(dict_context)
+        if zipkin_enabled:
+            zipkin_context.update_binary_annotations(dict_context)
