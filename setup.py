@@ -23,7 +23,7 @@ with open('VERSION') as fp:
 setup(
     name='django-py-zipkin',
     version=version,
-    description="py2 & py3 compatible zipkin for Django",
+    description="py3 compatible zipkin for Django",
     long_description=readme,
     author="Simon de Haan",
     author_email='simon@praekelt.org',
@@ -44,7 +44,6 @@ setup(
     classifiers=[
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
     ]
 )
