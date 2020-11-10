@@ -29,9 +29,9 @@ Set the settings, if not set it'll use defaults:
 *ZIPKIN_BLACKLISTED_PATHS*: ``[]``
     List of regular expressions to ignore from tracing.
 
-Add the middleware
+Add the middleware:
 
-::
+.. code:: python
 
     MIDDLEWARE = [
         ...
@@ -39,10 +39,13 @@ Add the middleware
         ...
     ]
 
-Or instrument your code with the context manager::
+Or instrument your code with the context manager:
 
-    with trace('span-name', request.zipkin_tracer) as context
+.. code:: python
+
+    with trace('span-name', request.zipkin_tracer) as context:
         traced_value = do_something_that_takes_time()
         context.update({
             'some.key': traced_value,
         })
+
